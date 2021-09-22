@@ -1,0 +1,1 @@
+This is a folder implementing the transient network theory (TNT) in FEniCS. The TNT tracks the state of a polymer network with transient physical crosslinks, and is able to be implemented microscopically and macroscopically. See the work of Franck Vernerey for more information regarding the TNT and its derivations. 
