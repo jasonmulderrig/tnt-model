@@ -281,7 +281,7 @@ def Psi_e(mu):
 # k_rupture = k_rupture_prior
 
 # Calculate P = 1st PK stress
-P_G = J*C_attach/C_attach_refconfig*(mu-I)*F_inv.T + (J-1)*J*kappa/G*F_inv.T # penalty method for incompressibility
+P_G = C_attach/C_attach_refconfig*(mu-I)*F_inv.T + (J-1)*J*kappa/G*F_inv.T # penalty method for incompressibility
 
 # Specify the quadrature degree for efficiency
 WF = (inner(P_G, grad(v_u)))*dx(metadata={"quadrature_degree": 4}) - dot(B, v_u)*dx - dot(T, v_u)*ds
