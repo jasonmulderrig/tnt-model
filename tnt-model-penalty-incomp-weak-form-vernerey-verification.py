@@ -273,8 +273,8 @@ L_prior = ((F-F_prior)/Constant(dt))*inv(F_prior) # velocity gradient tensor
 I_L_prior = tr(L_prior)
 D_prior = (L_prior + L_prior.T)/Constant(2.0)
 
-C_attach_dot = k_attach*C_detach_prior - (k_detach+I_L_prior)*C_attach_prior
-mu_dot = k_attach*C_detach_prior/C_attach_prior*I - k_detach*mu_prior - C_attach_dot/C_attach_prior*mu_prior + D_prior*mu_prior + mu_prior*D_prior
+C_attach_dot = k_attach*C_detach_prior - k_detach*C_attach_prior
+mu_dot = k_attach*C_detach_prior/C_attach_prior*I - k_detach*mu_prior - (C_attach_dot/C_attach_prior-I_L_prior)*mu_prior + D_prior*mu_prior + mu_prior*D_prior
 
 C_attach = C_attach_dot*Constant(dt) + C_attach_prior
 C_detach = C_total-C_attach
