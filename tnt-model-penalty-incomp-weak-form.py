@@ -181,14 +181,14 @@ k_detach = project(k_d, V_scalar)
 mu_prior = project(I, V_tensor)
 
 # C_total = 1 at reference configuration
-C_total = project(C_tot, V_scalar)
+c_total = project(C_tot, V_scalar)
 
 # C_attach = 1 at reference configuration
-C_attach_prior = project(C_att_0, V_scalar)
+c_attach_prior = project(C_att_0, V_scalar)
 C_attach_refconfig = project(C_att_0, V_scalar)
 
 # C_detach = 0 at reference configuration
-C_detach_prior = project(C_det_0, V_scalar)
+c_detach_prior = project(C_det_0, V_scalar)
 
 # # Apply the boundary conditions to the unit cube mesh
 # def right_face(x, on_boundary):
@@ -261,11 +261,11 @@ L_prior = ((F-F_prior)/Constant(dt))*inv(F_prior) # velocity gradient tensor
 I_L_prior = tr(L_prior)
 D_prior = (L_prior + L_prior.T)/Constant(2.0)
 
-C_attach_dot = k_attach*C_detach_prior - k_detach*C_attach_prior
-mu_dot = k_attach*C_detach_prior/C_attach_prior*I - k_detach*mu_prior - (C_attach_dot/C_attach_prior-I_L_prior)*mu_prior + D_prior*mu_prior + mu_prior*D_prior
+c_attach_dot = k_attach*c_detach_prior - (k_detach+I_L_prior)*c_attach_prior
+mu_dot = k_attach*c_detach_prior/c_attach_prior*I - k_detach*mu_prior - c_attach_dot/c_attach_prior*mu_prior + D_prior*mu_prior + mu_prior*D_prior
 
-C_attach = C_attach_dot*Constant(dt) + C_attach_prior
-C_detach = C_total-C_attach
+c_attach = c_attach_dot*Constant(dt) + c_attach_prior
+c_detach = c_total-c_attach
 
 mu = mu_dot*Constant(dt) + mu_prior
 
@@ -274,14 +274,14 @@ lmbda_c = sqrt(I_mu/3.0)
 lmbda_c__sqrt_nu = lmbda_c/sqrt(nu)
 
 def Psi_e(mu):
-    return 0.5*C_attach/C_attach_refconfig*tr(mu-I) + 0.5*kappa*(J-1)**2
+    return 0.5*J*c_attach/C_attach_refconfig*tr(mu-I) + 0.5*kappa*(J-1)**2
 
 # Update rates
 # k_detach = k_detach_prior
 # k_rupture = k_rupture_prior
 
 # Calculate P = 1st PK stress
-P_G = C_attach/C_attach_refconfig*(mu-I)*F_inv.T + (J-1)*J*kappa/G*F_inv.T # penalty method for incompressibility
+P_G = J*c_attach/C_attach_refconfig*(mu-I)*F_inv.T + (J-1)*J*kappa/G*F_inv.T # penalty method for incompressibility
 
 # Specify the quadrature degree for efficiency
 WF = (inner(P_G, grad(v_u)))*dx(metadata={"quadrature_degree": 4}) - dot(B, v_u)*dx - dot(T, v_u)*ds
@@ -318,8 +318,8 @@ for t_ind, t in enumerate(time):
     P_G_val = project(P_G, V_tensor)
     sigma_G_val = project(sigma_G, V_tensor)
     Psi_val = project(Psi, V_scalar)
-    C_attach_val = project(C_attach, V_scalar)
-    C_detach_val = project(C_detach, V_scalar)
+    c_attach_val = project(c_attach, V_scalar)
+    c_detach_val = project(c_detach, V_scalar)
     lmbda_c_val = project(lmbda_c, V_scalar)
     lmbda_c__sqrt_nu_val = project(lmbda_c__sqrt_nu, V_scalar)
     # k_detach_val = project(k_detach, V_scalar)
@@ -353,8 +353,8 @@ for t_ind, t in enumerate(time):
     # Update parameters
     u_prior.assign(u)
     mu_prior.assign(mu_val)
-    C_attach_prior.assign(C_attach_val)
-    C_detach_prior.assign(C_detach_val)
+    c_attach_prior.assign(c_attach_val)
+    c_detach_prior.assign(c_detach_val)
     # k_detach_prior.assign(k_detach_val)
     # k_rupture_prior.assign(k_rupture_val)
 
@@ -364,8 +364,8 @@ for t_ind, t in enumerate(time):
     P_G_val.rename("Normalized 1st PK stress", "P_G_val")
     Psi_val.rename("Network free energy", "Psi_val")
     sigma_G_val.rename("Normalized Cauchy stress", "sigma_G_val")
-    C_attach_val.rename("Attached chain concentration", "C_attach_val")
-    C_detach_val.rename("Detached chain concentration", "C_detach_val")
+    c_attach_val.rename("Attached chain concentration", "c_attach_val")
+    c_detach_val.rename("Detached chain concentration", "c_detach_val")
     lmbda_c_val.rename("Chain stretch", "lmbda_c_val")
     lmbda_c__sqrt_nu_val.rename("Normalized chain stretch", "lmbda_c__sqrt_nu_val")
     # k_attach_val.rename("Rate of attachment", "k_attach_val")
@@ -382,8 +382,8 @@ for t_ind, t in enumerate(time):
     file_results.write(P_G_val,t)
     file_results.write(Psi_val,t)
     file_results.write(sigma_G_val,t)
-    file_results.write(C_attach_val,t)
-    file_results.write(C_detach_val,t)
+    file_results.write(c_attach_val,t)
+    file_results.write(c_detach_val,t)
     file_results.write(lmbda_c_val,t)
     file_results.write(lmbda_c__sqrt_nu_val,t)
     # file_results.write(k_attach_val,t)
