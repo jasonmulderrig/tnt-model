@@ -274,7 +274,7 @@ lmbda_c = sqrt(I_mu/3.0)
 lmbda_c__sqrt_nu = lmbda_c/sqrt(nu)
 
 def Psi_e(mu):
-    return 0.5*J*c_attach/C_attach_refconfig*tr(mu-I) + 0.5*kappa*(J-1)**2
+    return 0.5*J*c_attach/C_attach_refconfig*tr(mu-I) + 0.5*kappa/G*(J-1)**2
 
 # Update rates
 # k_detach = k_detach_prior
